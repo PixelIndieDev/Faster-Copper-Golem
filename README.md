@@ -1,6 +1,8 @@
 # Faster Copper Golem
 <img src="https://github.com/PixelIndieDev/Faster-Copper-Golem/blob/main/documentation/icons/faster-copper-golems-icon.png?raw=true" width="400" height="400">
+
 **Ever felt like copper golems take too long to sort items?**
+
 No more, this mod lets you speed up the copper golem, making them more efficient at moving items between chests.
 
 ## Features:
