@@ -12,6 +12,7 @@ _configurable through [mod menu](https://modrinth.com/mod/modmenu)_
 - Customizable search radius | control how far copper golems can scan for chests.
 - Customizable movement speed | controls how fast copper golems walk to chests.
 - Customizable max amount of chests to check | control how many chests they check before giving up
+- Animations speed up with interaction speed
 
 ## Download
 - **[Modrinth](https://modrinth.com/mod/faster-copper-golem)**
