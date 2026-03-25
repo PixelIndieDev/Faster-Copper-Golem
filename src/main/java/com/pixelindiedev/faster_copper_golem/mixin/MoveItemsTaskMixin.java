@@ -1,7 +1,7 @@
 package com.pixelindiedev.faster_copper_golem.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.minecraft.entity.ai.brain.task.MoveItemsTask;
+import net.minecraft.world.entity.ai.behavior.TransportItemsBetweenContainers;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -16,46 +16,46 @@ import java.util.function.Predicate;
 
 import static com.pixelindiedev.faster_copper_golem.Faster_copper_golem.*;
 
-@Mixin(value = MoveItemsTask.class, priority = 800)
+@Mixin(value = TransportItemsBetweenContainers.class, priority = 800)
 public abstract class MoveItemsTaskMixin {
     @Mutable
     @Final
     @Shadow
-    private int horizontalRange;
+    private int horizontalSearchDistance;
     @Mutable
     @Final
     @Shadow
-    private int verticalRange;
+    private int verticalSearchDistance;
     @Mutable
     @Final
     @Shadow
-    private float speed;
+    private float speedModifier;
 
-    @ModifyExpressionValue(method = "extractStack", at = @At(value = "CONSTANT", args = "intValue=16"))
+    @ModifyExpressionValue(method = "pickupItemFromContainer", at = @At(value = "CONSTANT", args = "intValue=16"))
     private static int increaseStackAmount(int original) {
         return getMaxStackSize();
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void captureData(float speed, Predicate inputContainerPredicate, Predicate outputChestPredicate, int horizontalRange, int verticalRange, Map interactionCallbacks, Consumer travellingCallback, Predicate storagePredicate, CallbackInfo ci) {
-        this.horizontalRange = getHorizontalSearchRadius();
-        this.verticalRange = getVerticalSearchRadius();
-        this.speed = getMovementSpeed();
+        horizontalSearchDistance = getHorizontalSearchRadius();
+        verticalSearchDistance = getVerticalSearchRadius();
+        speedModifier = getMovementSpeed();
 
-        AddTask((MoveItemsTask) (Object) this);
+        AddTask((TransportItemsBetweenContainers) (Object) this);
     }
 
-    @ModifyExpressionValue(method = "tickInteracting", at = @At(value = "CONSTANT", args = "intValue=60"))
+    @ModifyExpressionValue(method = "onReachedTarget", at = @At(value = "CONSTANT", args = "intValue=60"))
     private int reduceInteractionTime(int original) {
         return getInteractionTime(original);
     }
 
-    @ModifyExpressionValue(method = "cooldown", at = @At(value = "CONSTANT", args = "intValue=140"))
+    @ModifyExpressionValue(method = "enterCooldownAfterNoMatchingTargetFound", at = @At(value = "CONSTANT", args = "intValue=140"))
     private int reduceCooldown(int original) {
         return getCooldownTime(original);
     }
 
-    @ModifyExpressionValue(method = "markVisited", at = @At(value = "CONSTANT", args = "intValue=10"))
+    @ModifyExpressionValue(method = "setVisitedBlockPos", at = @At(value = "CONSTANT", args = "intValue=10"))
     private int increaseVisitedChestMemory(int original) {
         return getMaxChestsRemembered(original);
     }

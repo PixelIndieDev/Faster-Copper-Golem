@@ -8,16 +8,16 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.ai.brain.task.MoveItemsTask;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.entity.ai.behavior.TransportItemsBetweenContainers;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 
 public class Faster_copper_golem implements ModInitializer {
-    private static final Set<MoveItemsTask> loadedMoveItemTasks = Collections.newSetFromMap(new WeakHashMap<>());
+    private static final Set<TransportItemsBetweenContainers> loadedMoveItemTasks = Collections.newSetFromMap(new WeakHashMap<>());
     public static ModModConfig CONFIG;
 
     private static int interactionTimeCache = -1;
@@ -29,7 +29,7 @@ public class Faster_copper_golem implements ModInitializer {
             clearCache();
             UpdateTasks();
 
-            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) sendConfigToPlayer(player);
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) sendConfigToPlayer(player);
         }
     }
 
@@ -125,7 +125,7 @@ public class Faster_copper_golem implements ModInitializer {
         int verti = getVerticalSearchRadius();
         float speed = getMovementSpeed();
 
-        for (MoveItemsTask task : loadedMoveItemTasks) {
+        for (TransportItemsBetweenContainers task : loadedMoveItemTasks) {
             ((MoveItemsTaskAccessor) task).setHorizontalRange(hori);
             ((MoveItemsTaskAccessor) task).setVerticalRange(verti);
             ((MoveItemsTaskAccessor) task).setSpeed(speed);
@@ -134,11 +134,11 @@ public class Faster_copper_golem implements ModInitializer {
         }
     }
 
-    public static void AddTask(MoveItemsTask task) {
+    public static void AddTask(TransportItemsBetweenContainers task) {
         loadedMoveItemTasks.add(task);
     }
 
-    public static void sendConfigToPlayer(ServerPlayerEntity player) {
+    public static void sendConfigToPlayer(ServerPlayer player) {
         if (ServerPlayNetworking.canSend(player, ConfigSyncPayload.ID)) {
             ConfigSyncPayload payload = new ConfigSyncPayload(getSpeedMultiplier(), getMovementSpeed(), getInteractionTime(), getCooldownTime(), getMaxStackSize(), getMaxChestsRemembered(), getHorizontalSearchRadius(), getVerticalSearchRadius());
             ServerPlayNetworking.send(player, payload);
@@ -152,7 +152,7 @@ public class Faster_copper_golem implements ModInitializer {
 
         ServerTickEvents.START_SERVER_TICK.register(Faster_copper_golem::onServerTick);
 
-        PayloadTypeRegistry.playS2C().register(ConfigSyncPayload.ID, ConfigSyncPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ConfigSyncPayload.ID, ConfigSyncPayload.CODEC);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             sendConfigToPlayer(handler.player);
         });
