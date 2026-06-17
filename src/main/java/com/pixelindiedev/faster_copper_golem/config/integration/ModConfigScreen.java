@@ -84,12 +84,12 @@ public class ModConfigScreen extends Screen {
 
         y += 30;
 
-        addRenderableWidget(ModMenuButtonWidget.builder(Component.literal("Done"), (btn) -> Minecraft.getInstance().setScreen(parent)).bounds(width / 2 - 100, y, 200, 20).build());
+        addRenderableWidget(ModMenuButtonWidget.builder(Component.literal("Done"), (btn) -> Minecraft.getInstance().setScreenAndShow(parent)).bounds(width / 2 - 100, y, 200, 20).build());
     }
 
     @Override
     public void onClose() {
         config.save();
-        minecraft.setScreen(parent);
+        minecraft.setScreenAndShow(parent);
     }
 }
